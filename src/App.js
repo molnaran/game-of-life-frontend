@@ -1,26 +1,48 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+
+import React, { useState, useEffect } from 'react';
+import axios from "axios";
+
+import Grid from "./components/Grid/Grid";
+
 
 function App() {
+  const [grid, setGrid] = useState(null); 
+
+  useEffect(() => {
+    const fetchNextGen = async () => {
+      try {
+        const startingGrid = randomGameOfLife(5,5);        
+        console.table(startingGrid);
+        let result = await axios.post(
+          "http://localhost:5000/gameoflife/next", startingGrid);
+          console.table(result.data)
+        setGrid(result.data);
+      } catch (e) {
+        console.log(e)
+      }
+    };
+    fetchNextGen(); 
+  }, []);
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        Alma
       </header>
+      <Grid grid={grid} />
     </div>
   );
+}
+
+function randomGameOfLife(rows, cols){
+  let arr = [];
+  for(let i = 0; i < rows; i++) {
+      arr[i] = [];
+      for(let j = 0; j < cols; j++) {
+          arr[i][j] = Math.floor(Math.random()*2) === 1 ? 1: 0;
+      }
+  }
+  return arr;
 }
 
 export default App;
