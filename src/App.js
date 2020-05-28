@@ -1,40 +1,50 @@
 
 import React, { useState, useEffect } from 'react';
-import axios from "axios";
 
+import Header from "./components/Header/Header";
+import NewGame from "./components/NewGame/NewGame";
 import Grid from "./components/Grid/Grid";
 
 
+
 function App() {
-  const [grid, setGrid] = useState(null); 
+  const STARTINGROWS= 3;
+  const STARTINGCOLUMNS =3;
+  const [grid, setGrid] = useState(null);
+  const [rows, setRows] = useState(STARTINGROWS);
+  const [columns, setColumns] = useState(STARTINGCOLUMNS);
+  const [cellWidth] = useState(20);
 
   useEffect(() => {
-    const fetchNextGen = async () => {
-      try {
-        const startingGrid = randomGameOfLife(5,5);        
-        console.table(startingGrid);
-        let result = await axios.post(
-          "http://localhost:5000/gameoflife/next", startingGrid);
-          console.table(result.data)
-        setGrid(result.data);
-      } catch (e) {
-        console.log(e)
-      }
-    };
-    fetchNextGen(); 
+    handleNewGrid(STARTINGROWS, STARTINGCOLUMNS);
   }, []);
 
+  function handleNewGrid(rows, cols){
+    const newGrid = getClearGameOfLife(rows, cols);
+    setGrid(newGrid);
+    setRows(rows);
+    setColumns(cols);
+  }
+
+  function handleRandomGrid(rows, cols){
+    const newGrid = getRandomGameOfLife(rows, cols);
+    setGrid(newGrid);
+    setRows(rows);
+    setColumns(cols);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        Alma
-      </header>
-      <Grid grid={grid} />
+    <div className="App">      
+      <Header />
+      <NewGame initialRows= {rows} initialColumns={columns} handleNewGrid={handleNewGrid} handleRandomGrid={handleRandomGrid}/>
+      <Grid grid={grid} columns={columns} cellWidth={cellWidth} />
     </div>
   );
 }
 
-function randomGameOfLife(rows, cols){
+
+
+function getRandomGameOfLife(rows, cols){
   let arr = [];
   for(let i = 0; i < rows; i++) {
       arr[i] = [];
@@ -44,5 +54,31 @@ function randomGameOfLife(rows, cols){
   }
   return arr;
 }
+
+function getClearGameOfLife(rows, cols, defaultValue=0) {
+  let arr = [];
+  for(let i = 0; i < rows; i++) {
+      arr[i] = [];
+      for(let j = 0; j < cols; j++) {
+          arr[i][j] = defaultValue;
+      }
+  }
+  return arr;
+}
+
+
+/*
+const fetchNextGen = async () => {
+  try {
+    const startingGrid = randomGameOfLife(200,200);        
+    console.table(startingGrid);
+    let result = await axios.post(
+      "http://localhost:5000/gameoflife/next", startingGrid);
+    setGrid(result.data);
+  } catch (e) {
+    console.log(e)
+  }
+};
+*/
 
 export default App;
