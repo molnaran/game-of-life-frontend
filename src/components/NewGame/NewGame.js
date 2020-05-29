@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const NewGame = props => {
     const MINROWCOLUMNNUM = 3;
-    const MAXROWCOLUMNNUM = 200;
+    const MAXROWCOLUMNNUM = 100;
     const [newRows, setNewRows] = useState(props.initialRows);    
     const [newColumns, setNewColumns] = useState(props.initialColumns);
 

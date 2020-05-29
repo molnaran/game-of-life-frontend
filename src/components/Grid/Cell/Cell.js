@@ -2,7 +2,6 @@ import React from 'react';
 
 import styled from "styled-components";
 
-
 const CellDiv = styled.div`
     width:  ${props => props.cellWidth}px;
     height:  ${props => props.cellWidth}px;
@@ -12,10 +11,17 @@ const CellDiv = styled.div`
     display: flex;
     align-items: center;
 `;
+const Cell = React.memo(props => {   
 
-const Cell = props => {    
-    return <CellDiv cellWidth={props.cellWidth} value={props.value}>
+    console.log("rendering")
+
+    const handleClick = () => {
+        props.onCellClick(props.row, props.col);
+    }
+
+    return <CellDiv cellWidth={props.cellWidth} value={props.value} onClick={handleClick}>
     </CellDiv>;
-}
+})
+
 
 export default Cell;

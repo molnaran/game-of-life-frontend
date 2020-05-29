@@ -1,4 +1,5 @@
 import React from 'react';
+
 import '../../index.css';
 
 import Cell from "./Cell/Cell"
@@ -19,17 +20,20 @@ const DynamicGrid = styled.div`
 `;
 
 const Grid = props => {    
-    const {grid, columns, cellWidth} =props;
+    const {grid, columns, cellWidth, handleCellToggle} =props;
 
-    let gridAsNums = null;
+    console.log("Grid rendering");
+
+    let gridAsNums = null;   
 
     if (Array.isArray(grid) && Array.isArray(grid[0])){
-        gridAsNums = grid.map((arr,i) => arr.map((num,j) => <Cell key={i+"_"+j} value={num} cellWidth={cellWidth}/>));
-    }
+        gridAsNums = grid.map((arr,i) => arr.map((num,j) => <Cell key={i+"_"+j} value={num} row={i} col={j} cellWidth={cellWidth} onCellClick={handleCellToggle}/> ));
+    }   
 
-    return <DynamicGrid columns={columns} cellWidth={cellWidth}>      
+    return <DynamicGrid columns={columns} cellWidth={cellWidth} >      
         {gridAsNums}
     </DynamicGrid>;
 }
+
 
 export default Grid;
