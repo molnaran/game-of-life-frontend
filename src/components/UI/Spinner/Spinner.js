@@ -1,6 +1,5 @@
 import styled from "styled-components";
 
-
 const Spinner = styled.div`
     display: inline-block;
     color: #050505;
@@ -81,7 +80,6 @@ const Spinner = styled.div`
       -webkit-transform: rotate(360deg);
       transform: rotate(360deg);
     }
-  }`
-  ;
+  }`;
 
 export default Spinner;
