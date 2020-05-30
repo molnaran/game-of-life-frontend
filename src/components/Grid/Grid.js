@@ -22,7 +22,7 @@ const DynamicGrid = styled.div`
     overflow: auto;    
     align-items: center;
     justify-items: center;
-    border: 2px solid rgb(166, 166, 192);
+    border: 2px solid rgb(95, 95, 235);
     box-sizing: border-box;
 `;
 

@@ -3,9 +3,10 @@ import styled from "styled-components";
 
 const HeaderDiv = styled.div`
     width: 100%;
-    padding: 20px;    
+    padding: 0px;    
     text-align: center;
     box-sizing: border-box;
+    color:rgb(32, 32, 85);
 
     h1{        
         font-size: 3rem;
@@ -13,7 +14,8 @@ const HeaderDiv = styled.div`
     }    
 
     p{        
-        font-size: 1rem;
+        font-size: 1em;
+        margin 1em 0 0 0;
     }
 `;
 

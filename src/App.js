@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from "axios";
+import styled from "styled-components";
 
 import Header from "./components/Header/Header";
 import NewGame from "./components/NewGame/NewGame";
@@ -39,6 +39,13 @@ function getClearGameOfLife(rows, cols, defaultValue=0) {
 const GAMEOFLIFENEXTGENURL = "http://localhost:5000/gameoflife/next";
 const STARTINGROWS= 20;
 const STARTINGCOLUMNS = 20;
+
+const AppContainerDiv = styled.div`
+  width: 100%;
+  padding-bottom: 1em;
+  text-align: center;
+  box-sizing: border-box;
+`;
 
 function App() {
   const [grid, setGrid] = useState(null);
@@ -89,20 +96,13 @@ function App() {
     });
   }, []);  
 
-  const style ={
-    width: "100%",
-    padding: "20px",    
-    textAlign: "center",
-    boxSizing: "border-box"
-  }
-
   return (
-    <div className="App" style={style}>      
+    <AppContainerDiv className="App">      
       <Header />
       <NewGame initialRows= {rows} initialColumns={columns} handleNewGrid={handleNewGrid} handleRandomGrid={handleRandomGrid}/>
       <Grid grid={grid} columns={columns} cellWidth={cellWidth} handleCellToggle={handleCellToggle} />
       <GameControlls handleNextGen={handleNextGen} isLoading={isLoading} />
-    </div>
+    </AppContainerDiv>
   );
 }
 

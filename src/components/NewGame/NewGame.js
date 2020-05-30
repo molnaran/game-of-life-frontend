@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import FormLikeDiv from "../UI/FormLikeDiv/FormLikeDiv";
+
+import CustomButton from "../UI/CustomButton/CustomButton"
 
 function isInputDataValid (rows, columns, minValue, maxValue){
     const parsedRow = parseInt(rows);        
@@ -14,6 +17,8 @@ function isInputDataValid (rows, columns, minValue, maxValue){
 
 const MINROWCOLUMNNUM = 3;
 const MAXROWCOLUMNNUM = 100;
+
+
 
 const NewGame = props => {    
     const [newRows, setNewRows] = useState(props.initialRows);    
@@ -35,14 +40,14 @@ const NewGame = props => {
         }
     }    
 
-    return <div style={{padding: "2em"}}>
-            <label htmlFor="rows">Rows:</label>
-            <input type="number" value={newRows} onChange={e => setNewRows(e.target.value)} name="rows"/>        
-            <label htmlFor="columns">Columns:</label>
-            <input type="number" value={newColumns} onChange={e => setNewColumns(e.target.value)} name="columns"/>
-            <button type="button" onClick={onNewGridClick}>Clear!</button>
-            <button type="button" onClick={onRandomGridClick}>Randomize!</button>
-    </div>    
+    return <FormLikeDiv>            
+        <label htmlFor="rows">Rows:</label>
+        <input type="number" value={newRows} onChange={e => setNewRows(e.target.value)} name="rows"/>    
+        <label htmlFor="columns">Columns:</label>
+        <input type="number" value={newColumns} onChange={e => setNewColumns(e.target.value)} name="columns"/>  
+        <CustomButton onClick={onNewGridClick}>Clear!</CustomButton>
+        <CustomButton onClick={onRandomGridClick}>Randomize!</CustomButton>       
+    </FormLikeDiv>    
 }
 
 export default NewGame;
