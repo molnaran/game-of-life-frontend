@@ -1,44 +1,22 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {useState, useEffect, useCallback } from 'react';
 import axios from "axios";
 import styled from "styled-components";
 
-import Header from "./components/Header/Header";
-import NewGame from "./components/NewGame/NewGame";
+import {getRandomGameOfLife, copyTwoDimArray, getClearGameOfLife} from "./util/matrix";
+import Header from "./components/UI/Header/Header";
+import GridController from "./components/GridController/GridController";
 import Grid from "./components/Grid/Grid";
-import GameControlls from "./components/GameControlls/GameControlls"
-
-
-function getRandomGameOfLife(rows, cols){
-  let arr = [];
-  for(let i = 0; i < rows; i++) {
-      arr[i] = [];
-      for(let j = 0; j < cols; j++) {
-          arr[i][j] = Math.floor(Math.random()*2) === 1 ? 1: 0;
-      }
-  }
-  return arr;
-}
-
-function copyTwoDimArray (twodimarray){  
-  return twodimarray.map(function(arr) {
-    return arr.slice();
-  });
-};
-
-function getClearGameOfLife(rows, cols, defaultValue=0) {
-  let arr = [];
-  for(let i = 0; i < rows; i++) {
-      arr[i] = [];
-      for(let j = 0; j < cols; j++) {
-          arr[i][j] = defaultValue;
-      }
-  }
-  return arr;
-}  
+import GameController from "./components/GameController/GameController";
+import ErrorDiv from "./components/UI/ErrorDiv/ErrorDiv";
 
 const GAMEOFLIFENEXTGENURL = "http://localhost:5000/gameoflife/next";
 const STARTINGROWS= 20;
 const STARTINGCOLUMNS = 20;
+const ERROR_SERVER_NOT_AVAILABLE = "Can't connect to server, please try again later!";
+const MATRIX_BOUNDS = {
+  min: 3,
+  max: 100
+}
 
 const AppContainerDiv = styled.div`
   width: 100%;
@@ -47,61 +25,123 @@ const AppContainerDiv = styled.div`
   box-sizing: border-box;
 `;
 
+
+
 function App() {
   const [grid, setGrid] = useState(null);
   const [rows, setRows] = useState(STARTINGROWS);
   const [columns, setColumns] = useState(STARTINGCOLUMNS);
   const [cellWidth] = useState(20);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const newGrid = getClearGameOfLife(STARTINGROWS, STARTINGCOLUMNS);
-    setGrid(newGrid);
-    setRows(STARTINGROWS);
-    setColumns(STARTINGCOLUMNS);
-  }, []);  
+  const [isRunning, setIsRunning] = useState(false);
+  const [error, setError] = useState(null);    
+  
+  const handleGenerateGrid = function(rows, cols, grid){
+    setError(null);
+    setGrid(grid);
+    setRows(rows);
+    setColumns(cols);
+  }
 
   const handleNewGrid = function(rows, cols){
+    if (isRunning || isLoading){
+      return;
+    }
     const newGrid = getClearGameOfLife(rows, cols);
-    setGrid(newGrid);
-    setRows(rows);
-    setColumns(cols);
+    handleGenerateGrid(rows, cols, newGrid);
   }
 
-  const handleRandomGrid = function(rows, cols){
-    const newGrid = getRandomGameOfLife(rows, cols);
-    setGrid(newGrid);
-    setRows(rows);
-    setColumns(cols);
+  const handleRandomGrid = function(rows, cols){    
+    if (isRunning || isLoading){
+      return;
+    }
+    const randomGrid = getRandomGameOfLife(rows, cols);
+    handleGenerateGrid(rows, cols, randomGrid);
   }
 
-  const handleNextGen = async function(){
+  const getGridBounds = function(grid){
+    const rows = grid.length;
+    const cols = grid[0].length;
+    return {rows, cols};
+  }
+
+  const handleNextGen = useCallback(async function(){
+    setError(null);
     try {     
       setIsLoading(true);
-      let result = await axios.post(
-        GAMEOFLIFENEXTGENURL, grid);              
-          setGrid(result.data);
-          setIsLoading(false);
+      let result = await axios.post(GAMEOFLIFENEXTGENURL, grid); 
+        const resultGrid = result.data;
+        const gridBounds = getGridBounds(resultGrid);
+        handleGenerateGrid(gridBounds.rows, gridBounds.cols, resultGrid);  
+        setIsLoading(false);      
     } catch (e) {
+      setError(ERROR_SERVER_NOT_AVAILABLE);
       setIsLoading(false);
-      console.log(e);
+      setIsRunning(false);
     }
-  }    
-  
-  const handleCellToggle = useCallback(function (row, col){
+  }, [grid])  
+
+  const handleCellToggle = useCallback((function (row, col){ 
+    if (isRunning || isLoading){
+      return;
+    }  
     setGrid(prevGrid => {
-      const copied=copyTwoDimArray(prevGrid);
+      const copied = copyTwoDimArray(prevGrid);
       copied[row][col] = copied[row][col] === 1 ? 0: 1;
       return copied;
     });
-  }, []);  
+    
+  }), [isRunning, isLoading]);  
+
+  const handleToggleRunning = function(){      
+    setIsRunning(prevIsRunning => !prevIsRunning);    
+  }
+
+  useEffect(() => {
+    const newGrid = getClearGameOfLife(STARTINGROWS, STARTINGCOLUMNS);
+    handleGenerateGrid(STARTINGROWS, STARTINGCOLUMNS, newGrid);
+  }, []);
+
+  useEffect(() => {
+    let timer;
+      if (isRunning && !isLoading){        
+        timer = setTimeout(()=> handleNextGen(), 1000);
+      }      
+    return () => {
+      clearTimeout(timer);
+    }
+  }, [grid, isLoading, isRunning, handleNextGen]);
+
+  let errorElement = null;
+  if (error){
+    errorElement = (
+      <ErrorDiv>
+        {error}
+      </ErrorDiv>)
+  }
 
   return (
     <AppContainerDiv className="App">      
       <Header />
-      <NewGame initialRows= {rows} initialColumns={columns} handleNewGrid={handleNewGrid} handleRandomGrid={handleRandomGrid}/>
-      <Grid grid={grid} columns={columns} cellWidth={cellWidth} handleCellToggle={handleCellToggle} />
-      <GameControlls handleNextGen={handleNextGen} isLoading={isLoading} />
+      {errorElement}
+      <GridController initialRows= {rows}
+        initialColumns={columns} 
+        handleNewGrid={handleNewGrid} 
+        handleRandomGrid={handleRandomGrid} 
+        bounds={MATRIX_BOUNDS} 
+        isLocked={isRunning || isLoading}/>      
+      <Grid 
+        grid={grid} 
+        columns={columns} 
+        cellWidth={cellWidth} 
+        handleCellToggle={handleCellToggle} 
+        isLocked={isRunning || isLoading} />      
+      <GameController 
+        handleNextGen={handleNextGen} 
+        isLoading={isLoading} 
+        isRunning={isRunning} 
+        isLocked={isRunning || isLoading} 
+        handleToggleRunning={handleToggleRunning}/>      
     </AppContainerDiv>
   );
 }

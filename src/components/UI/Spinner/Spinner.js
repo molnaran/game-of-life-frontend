@@ -9,7 +9,7 @@ const Spinner = styled.div`
     width: 1em;
     height: 1em;
     border-radius: 50%;
-    margin: ${props => props.margin ? props.margin : "auto 32px"};
+    margin: auto;
     position: relative;
     -webkit-transform: translateZ(0);
     -ms-transform: translateZ(0);

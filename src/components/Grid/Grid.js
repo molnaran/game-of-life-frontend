@@ -1,7 +1,5 @@
 import React from 'react';
 
-import '../../index.css';
-
 import styled from "styled-components";
 import Cell from "./Cell/Cell";
 
@@ -24,24 +22,36 @@ const DynamicGrid = styled.div`
     justify-items: center;
     border: 2px solid rgb(95, 95, 235);
     box-sizing: border-box;
+
+    :hover{
+        cursor: ${props => props.isLocked ? "not-allowed" : "auto"}
+    }
 `;
 
 const Grid = props => {    
-    const {grid, columns, cellWidth, handleCellToggle} =props;
+    const {isLocked, grid, columns, cellWidth, handleCellToggle} =props;
 
-    console.log("Grid rendering");
-
-    let gridAsNums = null;
+    let gridCells = null;
     if (Array.isArray(grid) && Array.isArray(grid[0])){
-        gridAsNums = grid.map((arr,i) => arr.map((num,j) => <Cell key={i+"_"+j} value={num} row={i} col={j} cellWidth={cellWidth} onCellClick={handleCellToggle}/> ));
+        gridCells = grid.map((arr,i) => arr.map((num,j) => 
+            <Cell 
+                key={i+"_"+j} 
+                value={num} 
+                row={i} 
+                col={j} 
+                cellWidth={cellWidth} 
+                onCellClick={handleCellToggle}/>));
     }   
 
-    return <GridContainer>
-        <DynamicGrid columns={columns} cellWidth={cellWidth}>      
-            {gridAsNums}
-        </DynamicGrid>
-    </GridContainer> 
+    return (
+        <GridContainer>
+            <DynamicGrid 
+                columns={columns} 
+                cellWidth={cellWidth} 
+                isLocked={isLocked}>      
+                    {gridCells}            
+            </DynamicGrid>
+        </GridContainer>)
 }
-
 
 export default Grid;

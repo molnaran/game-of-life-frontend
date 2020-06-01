@@ -10,17 +10,17 @@ const CellDiv = styled.div`
     align-items: center;
     box-sizing:content-box;    
 `;
-const Cell = React.memo(props => {   
-
-    console.log("rendering");
-
+const Cell = React.memo(props => { 
+    const {value, row, col, cellWidth, onCellClick} = props; 
     const handleClick = () => {
-        props.onCellClick(props.row, props.col);
+        onCellClick(row, col);
     }
-
-    return <CellDiv cellWidth={props.cellWidth} value={props.value} onClick={handleClick}>
-    </CellDiv>;
+    return (
+        <CellDiv 
+            cellWidth={cellWidth} 
+            value={value} 
+            onClick={handleClick}>
+        </CellDiv>);
 })
-
 
 export default Cell;
